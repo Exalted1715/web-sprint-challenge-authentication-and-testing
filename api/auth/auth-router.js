@@ -1,11 +1,11 @@
 const router = require('express').Router();
-const { checkUserNameExists } = require("./auth-middleware");
+const { checkUserNameExists, validateRequestBody } = require("./auth-middleware");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require('../../secrets');
 const bcrypt = require('bcryptjs');
 const db = require('../../data/dbConfig');
 
-router.post('/register', checkUserNameExists, async (req, res) => {
+router.post('/register',validateRequestBody, checkUserNameExists,  async (req, res) => {
   const { username, password } = req.body;
  
 console.log(req.body)
@@ -42,7 +42,7 @@ if (!username || !password) {
 });
 
 
-router.post('/login', async (req, res) => {
+router.post('/login', validateRequestBody, async (req, res) => {
     const { username, password } = req.body;
 
 

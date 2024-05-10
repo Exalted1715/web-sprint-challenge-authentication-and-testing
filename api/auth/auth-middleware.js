@@ -9,6 +9,16 @@ const db = require('../../data/dbConfig.js')
   
   }
 
+  const validateRequestBody = (req, res, next) => {
+    const { username, password } = req.body;
+  
+    if (!username || !password) {
+      return res.status(400).json({ message: "username and password required" });
+    }
+  
+    // If username and password are provided, proceed to the next middleware
+    next();
+  };
 
   const checkUserNameExists = async (req, res, next) => {
     try {
@@ -30,4 +40,5 @@ const db = require('../../data/dbConfig.js')
 
 module.exports = {
     checkUserNameExists,
+    validateRequestBody
 }
