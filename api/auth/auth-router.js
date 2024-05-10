@@ -10,7 +10,7 @@ router.post('/register', checkUserNameExists, async (req, res) => {
   console.log('Received username:', username);
   console.log('Received password:', password);
 
-  // Step 3: Check if username and password are provided
+  // Step 3: Check if username and password are provided and recent changes
   if (!username) {
     return res.status(400).json({ message: "username and password required" });
 }
