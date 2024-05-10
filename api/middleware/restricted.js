@@ -22,6 +22,4 @@ const restrict = (req, res, next) => {
     });
 };
 
-module.exports = {
-  restrict
-}
+module.exports = restrict; // Export the middleware function directly, not inside an object

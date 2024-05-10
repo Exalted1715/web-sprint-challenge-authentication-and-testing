@@ -4,8 +4,7 @@ const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require('../../secrets');
 const bcrypt = require('bcryptjs');
 const db = require('../../data/dbConfig');
-const {restrict} = require('../middleware/restricted')
-const jokes = require('../jokes/jokes-data')
+
 
 router.post('/register', checkUserNameExists, async (req, res) => {
     const { username, password } = req.body;
@@ -66,11 +65,6 @@ router.post('/login', async (req, res) => {
     }
 });
 
-
-router.get('/jokes', restrict, (req, res) => {
-  // This endpoint is restricted to users with a valid token
-  res.json(jokes);
-});
 
 
 function buildToken(user) {
