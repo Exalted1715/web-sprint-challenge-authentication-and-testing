@@ -7,18 +7,13 @@ const db = require('../../data/dbConfig');
 
 router.post('/register', checkUserNameExists, async (req, res) => {
   const { username, password } = req.body;
-  console.log('Received username:', username);
-  console.log('Received password:', password);
+ 
 
-  // Step 3: Check if username and password are provided and recent changes
-  if (!username) {
-    return res.status(400).json({ message: "username and password required" });
+
+if (!username || !password) {
+  return res.status(400).json({ message: "username and password required" });
 }
 
-// Check if password is missing
-if (!password) {
-    return res.status(400).json({ message: "username and password required" });
-}
 
   try {
       // Hash the password
@@ -50,10 +45,11 @@ if (!password) {
 router.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
-    // Step 3: Check if username and password are provided
-    if (!username || !password) {
-        return res.status(400).json({ message: "username and password required" });
-    }
+
+if (!username || !password) {
+  return res.status(400).json({ message: "username and password required" });
+}
+
 
     try {
         // Step 1: Find the user by username in the database
