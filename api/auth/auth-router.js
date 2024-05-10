@@ -19,14 +19,14 @@ router.post('/register', checkUserNameExists, async (req, res) => {
         const hash = bcrypt.hashSync(password, 8);
 
         // Step 2: Insert the new user into the database
-        const [newUser] = await db('users').insert({ username, password: hash }).returning(['user_id', 'username', 'password']);
+        const [newUser] = await db('users').insert({ username, password: hash }).returning(['id', 'username', 'password']);
 
         // Step 2: Generate a JWT token for the new user
         const token = buildToken(newUser);
 
         // Step 2: Return the user details along with the token
         res.status(201).json({
-            id: newUser.user_id,
+            id: newUser.id,
             username: newUser.username,
             password: newUser.password,
             token
@@ -70,7 +70,7 @@ router.post('/login', async (req, res) => {
 function buildToken(user) {
     // Construct JWT payload
     const payload = {
-        subject: user.user_id,
+        subject: user.id,
         username: user.username,
     };
 
