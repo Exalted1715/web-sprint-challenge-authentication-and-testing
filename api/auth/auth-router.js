@@ -5,36 +5,38 @@ const { JWT_SECRET } = require('../../secrets');
 const bcrypt = require('bcryptjs');
 const db = require('../../data/dbConfig');
 
-
 router.post('/register', checkUserNameExists, async (req, res) => {
-    const { username, password } = req.body;
+  const { username, password } = req.body;
 
-    // Step 3: Check if username and password are provided
-    if (!username || !password) {
-        return res.status(400).json({ message: "Username and password required" });
-    }
+  // Step 3: Check if username and password are provided
+  if (!username || !password) {
+      return res.status(400).json({ message: "Username and password required" });
+  }
 
-    try {
-        // Step 1: Hash the password
-        const hash = bcrypt.hashSync(password, 8);
+  try {
+      // Step 1: Hash the password
+      const hash = bcrypt.hashSync(password, 8);
 
-        // Step 2: Insert the new user into the database
-        const [newUser] = await db('users').insert({ username, password: hash }).returning(['id', 'username', 'password']);
+      // Step 2: Insert the new user into the database
+      await db('users').insert({ username, password: hash });
 
-        // Step 2: Generate a JWT token for the new user
-        const token = buildToken(newUser);
+      // Step 3: Retrieve the newly inserted user's ID
+      const newUser = await db('users').where({ username }).first();
 
-        // Step 2: Return the user details along with the token
-        res.status(201).json({
-            id: newUser.id,
-            username: newUser.username,
-            password: newUser.password,
-            token
-        });
-    } catch (error) {
-        // Step 4: Handle any errors that occur during registration
-        res.status(500).json({ message: "error registering user" });
-    }
+      // Step 4: Generate a JWT token for the new user
+      const token = buildToken(newUser);
+
+      // Step 5: Return the user details along with the token
+      res.status(201).json({
+          id: newUser.id, // Use newUser.id instead of newUser.user_id
+          username: newUser.username,
+          password: newUser.password,
+          token
+      });
+  } catch (error) {
+      // Step 6: Handle any errors that occur during registration
+      res.status(500).json({ message: "Error registering user" });
+  }
 });
 
 router.post('/login', async (req, res) => {
