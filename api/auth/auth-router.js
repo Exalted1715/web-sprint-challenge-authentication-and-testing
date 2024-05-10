@@ -12,8 +12,7 @@ console.log(req.body)
 
 if (!username || !password) {
   return res.status(400).json({ message: "username and password required" });
-}
-
+} else{
 
   try {
       // Hash the password
@@ -39,6 +38,7 @@ if (!username || !password) {
       // Handle any errors that occur during registration
       res.status(500).json({ message: "Error registering user" });
   }
+}
 });
 
 
@@ -48,9 +48,7 @@ router.post('/login', async (req, res) => {
 
 if (!username || !password) {
   return res.status(400).json({ message: "username and password required" });
-}
-
-
+} else {
     try {
         // Step 1: Find the user by username in the database
         const [user] = await db('users').where({ username });
@@ -69,6 +67,7 @@ if (!username || !password) {
         // Step 4: Handle any errors that occur during login
         res.status(500).json({ message: "error logging in" });
     }
+  }
 });
 
 
