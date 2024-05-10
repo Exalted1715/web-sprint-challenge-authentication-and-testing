@@ -10,7 +10,7 @@ router.post('/register', checkUserNameExists, async (req, res) => {
  
 console.log(req.body)
 
-if (username === '' || password === '') {
+if (!username || !password) {
   return res.status(400).json({ message: "username and password required" });
 }
 
@@ -46,9 +46,9 @@ router.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
 
-    if (username === '' || password === '') {
-      return res.status(400).json({ message: "username and password required" });
-    }
+if (!username || !password) {
+  return res.status(400).json({ message: "username and password required" });
+}
 
 
     try {
