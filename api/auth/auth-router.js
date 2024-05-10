@@ -37,7 +37,7 @@ if (!username || !password) {
       });
   } catch (error) {
       // Handle any errors that occur during registration
-      res.status(500).json({ message: "Error registering user" });
+      res.status(500).json({ message: "username and password required" });
   }
 });
 
