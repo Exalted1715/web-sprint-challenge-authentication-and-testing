@@ -12,7 +12,6 @@ router.post('/register', checkUserNameExists, async (req, res) => {
   if (!username || !password) {
       return res.status(400).json({message: "username and password required"});
   }
-
   try {
       // Hash the password
       const hash = bcrypt.hashSync(password, 8);
