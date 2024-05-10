@@ -7,11 +7,19 @@ const db = require('../../data/dbConfig');
 
 router.post('/register', checkUserNameExists, async (req, res) => {
   const { username, password } = req.body;
+  console.log('Received username:', username);
+  console.log('Received password:', password);
 
   // Step 3: Check if username and password are provided
-  if (!username || !password) {
-      return res.status(400).json({message: "username and password required"});
-  }
+  if (!username) {
+    return res.status(400).json({ message: "Username is missing" });
+}
+
+// Check if password is missing
+if (!password) {
+    return res.status(400).json({ message: "Password is missing" });
+}
+
   try {
       // Hash the password
       const hash = bcrypt.hashSync(password, 8);
