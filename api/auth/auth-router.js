@@ -8,10 +8,10 @@ const db = require('../../data/dbConfig');
 router.post('/register', checkUserNameExists, async (req, res) => {
   const { username, password } = req.body;
  
+console.log(req.body)
 
-
-if (!username || !password) {
-  return res.status(400).json("username and password required");
+if (username === '' || password === '') {
+  return res.status(400).json({ message: "username and password required" });
 }
 
 
@@ -37,7 +37,7 @@ if (!username || !password) {
       });
   } catch (error) {
       // Handle any errors that occur during registration
-      res.status(500).json({ message: "username and password required" });
+      res.status(500).json({ message: "Error registering user" });
   }
 });
 
@@ -46,9 +46,9 @@ router.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
 
-if (!username || !password) {
-  return res.status(400).json({ message: "username and password required" });
-}
+    if (username === '' || password === '') {
+      return res.status(400).json({ message: "username and password required" });
+    }
 
 
     try {
