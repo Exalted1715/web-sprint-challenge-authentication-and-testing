@@ -1,59 +1,83 @@
 const router = require('express').Router();
+const { checkUserNameExists } = require("./auth-middleware");
+const jwt = require("jsonwebtoken");
+const { JWT_SECRET } = require('../../secrets');
+const bcrypt = require('bcryptjs');
+const db = require('../../data/dbConfig');
 
-router.post('/register', (req, res) => {
-  res.end('implement register, please!');
-  /*
-    IMPLEMENT
-    You are welcome to build additional middlewares to help with the endpoint's functionality.
-    DO NOT EXCEED 2^8 ROUNDS OF HASHING!
+router.post('/register', checkUserNameExists, async (req, res) => {
+    const { username, password } = req.body;
 
-    1- In order to register a new account the client must provide `username` and `password`:
-      {
-        "username": "Captain Marvel", // must not exist already in the `users` table
-        "password": "foobar"          // needs to be hashed before it's saved
-      }
+    // Step 3: Check if username and password are provided
+    if (!username || !password) {
+        return res.status(400).json({ message: "Username and password required" });
+    }
 
-    2- On SUCCESSFUL registration,
-      the response body should have `id`, `username` and `password`:
-      {
-        "id": 1,
-        "username": "Captain Marvel",
-        "password": "2a$08$jG.wIGR2S4hxuyWNcBf9MuoC4y0dNy7qC/LbmtuFBSdIhWks2LhpG"
-      }
+    try {
+        // Step 1: Hash the password
+        const hash = bcrypt.hashSync(password, 8);
 
-    3- On FAILED registration due to `username` or `password` missing from the request body,
-      the response body should include a string exactly as follows: "username and password required".
+        // Step 2: Insert the new user into the database
+        const [newUser] = await db('users').insert({ username, password: hash }).returning(['user_id', 'username', 'password']);
 
-    4- On FAILED registration due to the `username` being taken,
-      the response body should include a string exactly as follows: "username taken".
-  */
+        // Step 2: Generate a JWT token for the new user
+        const token = buildToken(newUser);
+
+        // Step 2: Return the user details along with the token
+        res.status(201).json({
+            id: newUser.user_id,
+            username: newUser.username,
+            password: newUser.password,
+            token
+        });
+    } catch (error) {
+        // Step 4: Handle any errors that occur during registration
+        res.status(500).json({ message: "error registering user" });
+    }
 });
 
-router.post('/login', (req, res) => {
-  res.end('implement login, please!');
-  /*
-    IMPLEMENT
-    You are welcome to build additional middlewares to help with the endpoint's functionality.
+router.post('/login', async (req, res) => {
+    const { username, password } = req.body;
 
-    1- In order to log into an existing account the client must provide `username` and `password`:
-      {
-        "username": "Captain Marvel",
-        "password": "foobar"
-      }
+    // Step 3: Check if username and password are provided
+    if (!username || !password) {
+        return res.status(400).json({ message: "username and password required" });
+    }
 
-    2- On SUCCESSFUL login,
-      the response body should have `message` and `token`:
-      {
-        "message": "welcome, Captain Marvel",
-        "token": "eyJhbGciOiJIUzI ... ETC ... vUPjZYDSa46Nwz8"
-      }
+    try {
+        // Step 1: Find the user by username in the database
+        const [user] = await db('users').where({ username });
 
-    3- On FAILED login due to `username` or `password` missing from the request body,
-      the response body should include a string exactly as follows: "username and password required".
+        // Step 2: Check if the user exists and if the password is correct
+        if (!user || !bcrypt.compareSync(password, user.password)) {
+            return res.status(401).json({ message: "invalid credentials" });
+        }
 
-    4- On FAILED login due to `username` not existing in the db, or `password` being incorrect,
-      the response body should include a string exactly as follows: "invalid credentials".
-  */
+        // Step 2: Generate a JWT token for the authenticated user
+        const token = buildToken(user);
+
+        // Step 2: Return a success message and the token
+        res.json({ message: `Welcome, ${user.username}`, token });
+    } catch (error) {
+        // Step 4: Handle any errors that occur during login
+        res.status(500).json({ message: "error logging in" });
+    }
 });
+
+function buildToken(user) {
+    // Construct JWT payload
+    const payload = {
+        subject: user.user_id,
+        username: user.username,
+    };
+
+    // Set options for JWT token
+    const options = {
+        expiresIn: '1d',
+    };
+
+    // Sign the payload and return the JWT token
+    return jwt.sign(payload, JWT_SECRET, options);
+}
 
 module.exports = router;
