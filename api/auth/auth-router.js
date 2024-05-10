@@ -12,12 +12,12 @@ router.post('/register', checkUserNameExists, async (req, res) => {
 
   // Step 3: Check if username and password are provided
   if (!username) {
-    return res.status(400).json({ message: "Username is missing" });
+    return res.status(400).json({ message: "username and password required" });
 }
 
 // Check if password is missing
 if (!password) {
-    return res.status(400).json({ message: "Password is missing" });
+    return res.status(400).json({ message: "username and password required" });
 }
 
   try {
